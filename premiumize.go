@@ -55,9 +55,11 @@ func NewPremiumize() (premiumize *Premiumize) {
 	json.Unmarshal(data, &premiumize)
 	folderListUrl, _ := url.Parse("https://www.premiumize.me/api/folder/list")
 	detailUrl, _ := url.Parse("https://www.premiumize.me/browsetorrent")
+	createUrl, _ := url.Parse("https://www.premiumize.me/api/transfer/create")
 	premiumize.Urls = map[string]*url.URL{
 		"folderListUrl": folderListUrl,
 		"detailUrl":     detailUrl,
+		"createUrl":     createUrl,
 	}
 	premiumize.initializeClient(premiumize.Urls)
 	return
@@ -112,5 +114,12 @@ func (premiumize *Premiumize) GetDownloadLinks() (downloadLinks []string) {
 		hrefs := parseDetailPage(res.Body)
 		downloadLinks = append(downloadLinks, hrefs...)
 	}
+	return
+}
+
+func (premiumize *Premiumize) CreateDownload(src string) (err error) {
+	createUrl := premiumize.Urls["createUrl"]
+	_, err = premiumize.Client.PostForm(createUrl.String(),
+		url.Values{"src": {src}, "seed": {"2or48h"}})
 	return
 }
